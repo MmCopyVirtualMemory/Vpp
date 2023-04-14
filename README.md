@@ -10,7 +10,7 @@ Firstly read the PsInitialSystemProcess from ntoskrnl by using the kernel dirbas
 ```cpp
 ReadVirt(kernel_dirbase, ntoskrnl_base + OFFSET_INITIALSYSTEMPROCESS, &kernel_peprocess, sizeof(kernel_peprocess));
 ```
-PsInitialSystemProcess iteration so no need for a vdm shithook for things like PsLookupProcessByProcessId.
+PsInitialSystemProcess iteration so no need for a calling things like PsLookupProcessByProcessId.
 ```cpp
 static bool LoopPeProcesses(std::function<void(int, GUEST_VIRT)> callback)
 {
@@ -30,10 +30,9 @@ static bool LoopPeProcesses(std::function<void(int, GUEST_VIRT)> callback)
 	return true;
 }
 ```
+Now that we have the PEPROCESS, we can freely use it to gather data about the process from reads instead of using calls.
 
-
-
-EXAMPLE USAGE:
+This is an example of how I previously used the code. It is very old and can be written in a more efficient way:
 ```cpp
 static GUEST_VIRT GetProcessBaseAddress(int pid)
 {
@@ -65,7 +64,7 @@ static GUEST_VIRT GetPeb(int pid)
 }
 static GUEST_PHYS GetDirbase(int pid)
 {
-	static std::map<int, GUEST_PHYS> dirbase_map = {};
+	static std::map<int, GUEST_PHYS> dirbase_map = {}; //this will save time doing lookups but might cause problems.
 	if (dirbase_map[pid])
 	{
 		return dirbase_map[pid];
