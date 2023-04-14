@@ -1,8 +1,10 @@
 # Voyager++
 Utility modifications to Voyager. 
-If I am not lazy I will post pictures from windbg of how I found all of this and various additions that I have made to the payload itself.
 
-#Fuck VDM's Shithook
+*If I am not lazy I will post pictures from windbg of how I found all of this and various additions that I have made to the payload itself but this is for another time.*
+
+# Operations Without VDM's Shithook
+There has been a very poorly written library being passed around (and sold) like an albanian prostitute which utilizes vdm. I intend to demonstrate how to use voyager (and any other library like it) without the use of the shithook.
 
 Firstly read the PsInitialSystemProcess from ntoskrnl by using the kernel dirbase for translation. In theory you could also use the dirbase of the current process (since the kernel is mapped into every process) but in some cases this might not be available whereas the kernel dirbase doesn't change (from what I saw in windbg).
 ```cpp
