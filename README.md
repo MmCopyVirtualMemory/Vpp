@@ -86,3 +86,50 @@ static GUEST_PHYS GetDirbase(int pid)
 	return dirbase_map[pid];
 }
 ```
+
+# Cr3 Prevention Stuff
+
+Recently some games have pwning the good ol' process + 0x28. Here's a cool way around it.
+```asm
+; preserve regs
+push rdx
+push rcx
+push r10 ; block ptr
+push r11 ; stack_attach
+push r12 ; stack_detach
+push r13 ; apc_state
+push r14 ; process
+push r15 ; cr3
+
+; setup data to be used across calls
+movabs r10, block
+mov r11, [r10 + block->stack_attach] ; size 0x8
+mov r12, [r10 + block->stack_detach] ; size 0x8
+lea r13, [r10 + block->apc_state] ; size 0x30
+mov r14, [r10 + block->process] ; size 0x8
+
+mov rcx, r14
+mov rdx, r13
+call r11 ; enter new address space
+mov r15, cr3
+call r12 ; return to og address space
+mov [r10 + block->cr3], r15
+
+; restore regs
+pop r15
+pop r14
+pop r13
+pop r12
+pop r11
+pop r10
+pop rcx
+pop rdx
+```
+
+
+
+
+
+
+
+
