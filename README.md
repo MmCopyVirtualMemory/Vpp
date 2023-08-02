@@ -90,45 +90,33 @@ static GUEST_PHYS GetDirbase(int pid)
 # Cr3 Prevention Stuff
 
 Recently some games have pwning the good ol' process + 0x28. Here's a cool way around it.
-```asm
-; preserve regs
-push rdx
-push rcx
-push r10 ; block ptr
-push r11 ; stack_attach
-push r12 ; stack_detach
-push r13 ; apc_state
-push r14 ; process
-push r15 ; cr3
 
-; setup data to be used across calls
-movabs r10, block
-mov r11, [r10 + block->stack_attach] ; size 0x8
-mov r12, [r10 + block->stack_detach] ; size 0x8
-lea r13, [r10 + block->apc_state] ; size 0x30
-mov r14, [r10 + block->process] ; size 0x8
-
-mov rcx, r14
-mov rdx, r13
-call r11 ; enter new address space
-mov r15, cr3
-call r12 ; return to og address space
-mov [r10 + block->cr3], r15
-
-; restore regs
-pop r15
-pop r14
-pop r13
-pop r12
-pop r11
-pop r10
-pop rcx
-pop rdx
+```cpp
+CR3 GetCr3(U64 eprocess)
+{
+    std::vector<U8> shellcode = { 0x48, 0x89, 0x4C, 0x24, 0x08, 0x48, 0x83, 0xEC, 0x78, 0x48, 0x8B, 0x84, 0x24, 0x80, 0x00, 0x00, 0x00, 0x48, 0x8B, 0x40, 0x08, 0x48, 0x89, 0x44, 0x24, 0x20, 0x48, 0x8D, 0x54, 0x24, 0x38, 0x48, 0x8B, 0x84, 0x24, 0x80, 0x00, 0x00, 0x00, 0x48, 0x8B, 0x08, 0x48, 0x8B, 0x44, 0x24, 0x20, 0xFF, 0xD0, 0x0F, 0x20, 0xD8, 0x48, 0x89, 0x44, 0x24, 0x30, 0x48, 0x8B, 0x84, 0x24, 0x80, 0x00, 0x00, 0x00, 0x48, 0x8B, 0x40, 0x10, 0x48, 0x89, 0x44, 0x24, 0x28, 0x48, 0x8D, 0x4C, 0x24, 0x38, 0x48, 0x8B, 0x44, 0x24, 0x28, 0xFF, 0xD0, 0x48, 0x8B, 0x44, 0x24, 0x30, 0x48, 0x83, 0xC4, 0x78, 0xC3 };
+    typedef struct CR3_COMMAND
+    {
+    public:
+        U64 process;
+        U64 stack_attach;
+        U64 stack_detach;
+    };
+    CR3_COMMAND cmd;
+    cmd.process = eprocess;
+    cmd.stack_attach = GetKernelModuleExport(_("ntoskrnl.exe"), _("KeStackAttachProcess"));
+    cmd.stack_detach = GetKernelModuleExport(_("ntoskrnl.exe"), _("KeUnstackDetachProcess"));
+    auto block_kernel = ExAllocatePool(0, sizeof(CR3_COMMAND) + shellcode.size());
+    Wkm(block_kernel, &cmd, sizeof(CR3_COMMAND));
+    Wkm(block_kernel + sizeof(CR3_COMMAND), shellcode.data(), shellcode.size());
+    auto cr3 = syscall<U64(__fastcall*)(U64)>(block_kernel + sizeof(CR3_COMMAND), block_kernel);
+    ExFreePool(block_kernel);
+    return (CR3)cr3;
+}
 ```
 
-
-
-
+https://cdn.discordapp.com/attachments/1052022842738343939/1136199765131010058/image.png
+https://cdn.discordapp.com/attachments/1052022842738343939/1136210724549574739/image.png
 
 
 
