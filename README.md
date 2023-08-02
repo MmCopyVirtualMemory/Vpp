@@ -115,8 +115,6 @@ CR3 GetCr3(U64 eprocess)
 }
 ```
 
-
-
 ![image](https://github.com/MmCopyVirtualMemory/Vpp/assets/88007716/1daef5de-d8dc-4617-97e4-47eddd7b642d)
-![image](https://github.com/MmCopyVirtualMemory/Vpp/assets/88007716/ba1c4445-67aa-4b0b-8686-572b41d86ed4)
+![ahgwdahjgwd](https://github.com/MmCopyVirtualMemory/Vpp/assets/88007716/ea734638-b363-4b88-8836-1fda6d171b6e)
 
