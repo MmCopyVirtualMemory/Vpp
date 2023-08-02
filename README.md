@@ -115,9 +115,10 @@ CR3 GetCr3(U64 eprocess)
 }
 ```
 
-https://cdn.discordapp.com/attachments/1052022842738343939/1136199765131010058/image.png
-https://cdn.discordapp.com/attachments/1052022842738343939/1136210724549574739/image.png
 
 
+![image](https://github.com/MmCopyVirtualMemory/Vpp/assets/88007716/1daef5de-d8dc-4617-97e4-47eddd7b642d)
+![image](https://github.com/MmCopyVirtualMemory/Vpp/assets/88007716/ba1c4445-67aa-4b0b-8686-572b41d86ed4)
+![Uploading image (1).png…]()
 
 
